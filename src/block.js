@@ -40,6 +40,7 @@ class Block {
         return new Promise((resolve, reject) => {
             // Save in auxiliary variable the current block hash
             let hash = self.hash;
+            self.hash = null;
                                             
             // Recalculate the hash of the Block
             let calculatedHash = SHA256(JSON.stringify(self)).toString();
@@ -47,10 +48,11 @@ class Block {
                 // Comparing if the hashes changed
                 // Returning the Block is not valid
                 // Returning the Block is valid
-                if (hash != calculatedHash) {
+                if (calculatedHash == hash) {
+                    self.hash = calculatedHash;
                     resolve(true);
                 } else {
-                    reject(false);
+                    resolve(false);
                 }
             } else {
                 reject(null);
@@ -82,11 +84,13 @@ class Block {
             let data = JSON.parse(decodedData);
                                             
             if (data) {
-                if (self.previousBlockHash == null) {
+                if (self.previousBlockHash != null) { // not a genesis block
                     resolve(data);
                 } else {
-                    reject("Error");
+                    resolve("Genesis Block");
                 }
+            } else {
+                reject("Error");
             }
         });
 
